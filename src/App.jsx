@@ -2,15 +2,15 @@ import './App.css'
 import Head from './Head'
 import Foot from './Foot'
 import Listazadan from './Listazadan'
+import Form from './Form'
 
 function App() {
-  //const [count, setCount] = useState(0)
-
   return (
     <>
       <Head/>
       <Listazadan/>
       <Foot/>
+      <Form/>
     </>
   )
 }
