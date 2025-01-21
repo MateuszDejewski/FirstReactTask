@@ -1,22 +1,41 @@
-import Zadanie from './Zadanie';
+import { useEffect, useState } from 'react';
 
 function Listazadan() {
-    let zadania = [
-        { name: 'Programowanie sys webowych lista 1', isDone: true, points: 10, author: 'Jan Kowalski' },
-        { name: 'Zad 2 HTML 1', isDone: true, points: 5, author: 'Anna Nowak' },
-        { name: 'Zad 3 HTML 2', isDone: true, points: 5, author: 'Anna Nowak' },
-        { name: 'Zad 4 CSS 1', isDone: true, points: 8, author: 'Piotr Wiśniewski' },
-        { name: 'Zadanie 5 CSS 2', isDone: true, points: 8, author: 'Piotr Wiśniewski' },
-        { name: 'Zad 6 javascript 1', isDone: true, points: 10, author: 'Jan Kowalski' },
-        { name: 'Zad 7 javascript 2', isDone: true, points: 10, author: 'Jan Kowalski' },
-        { name: 'Spring zad 1', isDone: true, points: 15, author: 'Anna Nowak' },
-        { name: 'Spring zad 2', isDone: true, points: 15, author: 'Anna Nowak' },
-        { name: 'Spring zad 3', isDone: true, points: 15, author: 'Piotr Wiśniewski' },
-        { name: 'Zad 1 React', isDone: false, points: 20, author: 'Jan Kowalski' },
-        { name: 'Zad 2 React', isDone: false, points: 20, author: 'Jan Kowalski' }
-    ];
+    const [tasks, setTasks] = useState([]);
+
+    useEffect(() => {
+        // Fetch tasks from Express server
+        const fetchTasks = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/tasks');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
+                }
+                const data = await response.json();
+                setTasks(data);
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        };
+
+        fetchTasks();
+    }, []);
+
+    const downloadTasksAsJSON = () => {
+        const jsonBlob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' }); //tworzy łancuch JSON, przekształca na obiekt binarny typu json
+        const url = URL.createObjectURL(jsonBlob); //tworzy tymczasowy url do obiektu
+        const link = document.createElement('a'); // tworzy link do url
+        link.href = url;
+        link.download = 'tasks.json';
+        link.click(); // ustawia parametry i klika w link
+        URL.revokeObjectURL(url); // usuwa urt do blebu
+    };
 
     return (
+        <div>
+        <button onClick={downloadTasksAsJSON} style={{ marginBottom: '10px' }}>
+            Pobierz JSON
+        </button>
         <table border="1" style={{ borderCollapse: 'collapse', width: '100%' }}>
             <thead>
                 <tr>
@@ -24,15 +43,26 @@ function Listazadan() {
                     <th>Autor</th>
                     <th>Status</th>
                     <th>Punkty</th>
-                    
                 </tr>
             </thead>
             <tbody>
-                {zadania.map((zadanie, index) => (
-                    <Zadanie key={index} name={zadanie.name} isDone={zadanie.isDone} points={zadanie.points} author={zadanie.author} />
-                ))}
+                {tasks.length > 0 ? (
+                    tasks.map((zadanie, index) => (
+                        <tr key={index}>
+                            <td>{zadanie.name}</td>
+                            <td>{zadanie.author}</td>
+                            <td>{zadanie.isDone ? 'Done' : 'Not Done'}</td>
+                            <td>{zadanie.points}</td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="4" style={{ textAlign: 'center' }}>Brak danych</td>
+                    </tr>
+                )}
             </tbody>
         </table>
+    </div>
     );
 }
 

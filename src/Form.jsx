@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 function Form() {
-
     const [formData, setFormData] = useState({
         name: '',
         points: 0,
@@ -11,23 +10,36 @@ function Form() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevData => ({
+        setFormData((prevData) => ({
             ...prevData,
             [name]: name === 'points' ? parseInt(value) : value
         }));
     };
 
-    // Funkcja obsługująca wysyłanie formularza
     const handleSubmit = async (e) => {
-            //TODO
-
-            setFormData({
-                name: '',
-                points: 0,
-                author: '',
-                isDone: false
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:5000/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
             });
 
+            if (response.ok) {
+                alert('Task added successfully!');
+                setFormData({
+                    name: '',
+                    points: 0,
+                    author: '',
+                    isDone: false
+                });
+                window.location.reload()
+            } else {
+                alert('Failed to add task');
+            }
+        } catch (error) {
+            console.error('Error adding task:', error);
+        }
     };
 
     return (
@@ -72,10 +84,15 @@ function Form() {
                     <select
                         name="isDone"
                         value={formData.isDone}
-                        onChange={(e) => handleInputChange(e)}
+                        onChange={(e) =>
+                            setFormData((prevData) => ({
+                                ...prevData,
+                                isDone: e.target.value === 'true'
+                            }))
+                        }
                     >
-                        <option value={false}>Not Done</option>
-                        <option value={true}>Done</option>
+                        <option value="false">Not Done</option>
+                        <option value="true">Done</option>
                     </select>
                 </label>
                 <br />
