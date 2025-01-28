@@ -3,16 +3,14 @@ import { useState } from 'react';
 function Form() {
     const [formData, setFormData] = useState({
         name: '',
-        points: 0,
-        author: '',
-        isDone: false
+        time: 0
     });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: name === 'points' ? parseInt(value) : value
+            [name]: name === 'time' ? parseInt(value) : value
         }));
     };
 
@@ -29,9 +27,7 @@ function Form() {
                 alert('Task added successfully!');
                 setFormData({
                     name: '',
-                    points: 0,
-                    author: '',
-                    isDone: false
+                    time: 0
                 });
                 window.location.reload()
             } else {
@@ -42,12 +38,32 @@ function Form() {
         }
     };
 
+    const addExampleTasks = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/tasks/example', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                alert('Example tasks added successfully!');
+                window.location.reload();
+            } else {
+                alert('Failed to add example tasks');
+            }
+        } catch (error) {
+            console.error('Error adding example tasks:', error);
+        }
+        
+    };
+
     return (
         <div>
-            <h3>Dodaj nowe zadanie</h3>
+            <button onClick={addExampleTasks}>Przywróć do domyślnych</button>
+            <h3>Dodaj nowy przedmiot</h3>
             <form onSubmit={handleSubmit}>
                 <label>
-                    Nazwa zadania:
+                    Nazwa przedmiotu:
                     <input
                         type="text"
                         name="name"
@@ -58,45 +74,17 @@ function Form() {
                 </label>
                 <br />
                 <label>
-                    Punkty:
+                    Czas:
                     <input
                         type="number"
-                        name="points"
-                        value={formData.points}
+                        name="time"
+                        value={formData.time}
                         onChange={handleInputChange}
                         required
                     />
                 </label>
                 <br />
-                <label>
-                    Autor:
-                    <input
-                        type="text"
-                        name="author"
-                        value={formData.author}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </label>
-                <br />
-                <label>
-                    Status:
-                    <select
-                        name="isDone"
-                        value={formData.isDone}
-                        onChange={(e) =>
-                            setFormData((prevData) => ({
-                                ...prevData,
-                                isDone: e.target.value === 'true'
-                            }))
-                        }
-                    >
-                        <option value="false">Not Done</option>
-                        <option value="true">Done</option>
-                    </select>
-                </label>
-                <br />
-                <button type="submit">Dodaj zadanie</button>
+                <button type="submit">Dodaj przedmiot</button>
             </form>
         </div>
     );
